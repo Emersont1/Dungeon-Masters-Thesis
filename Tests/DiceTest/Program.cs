@@ -30,10 +30,13 @@ namespace DiceTest {
             b.output ();
             */
 
-            Graph g = new Graph ("Figure 1", "Stat Generation Algorithms");
-            g.AddRolls (a, "3d6");
-            g.AddRolls (b, "4d6, best 3");
-            g.AddRolls (c, "5d6, middle 3");
+         
+            Graph g = new Graph ("Figure 2", "Damage Dealt against a Bugbear by a typical level 1 fighter (5e)", false);
+            //g.AddRolls (a, "", Colours.Blue, true);
+            //g.export ("rolls.svg");
+            g.AddRolls (a, "3d6", show_expected: true, marker_type:OxyPlot.MarkerType.Plus);
+            g.AddRolls (b, "4d6, best 3", show_expected: true,  marker_type:OxyPlot.MarkerType.Circle);
+            g.AddRolls (c, "5d6, middle 3", show_expected: true);
             g.export ("rolls.svg");
 
         }

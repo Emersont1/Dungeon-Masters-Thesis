@@ -95,6 +95,10 @@ namespace Dice {
             }
         }
 
+        public fp_t Expected () {
+            return rolls.Select (x => x.Key * x.Value).Sum ();
+        }
+
         public static DiceRoll d20 () { return new DiceRoll (20); }
         public static DiceRoll d12 () { return new DiceRoll (12); }
         public static DiceRoll d10 () { return new DiceRoll (10); }

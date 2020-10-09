@@ -15,11 +15,11 @@ namespace DiceTest {
                 } else { return 0; }
             }, DiceRoll.d20 (), DiceRoll.d12 (), DiceRoll.d12 ());
 
-            Graph g = new Graph ("Figure 2", "Damage Dealt against a Bugbear by a typical level 1 fighter (5e)");
-            g.AddRolls (a, "");
+            Graph g = new Graph ("Figure 2", "Damage Dealt against a Bugbear by a typical level 1 fighter (5e)", false);
+            g.AddRolls (a, "", Colours.Blue, true);
             g.export ("damage.svg");
             a.rolls.Remove (0);
-            g = new Graph ("Figure 3", "Damage Dealt against a Bugbear by a typical level 1 fighter (5e) (miss removed)");
+            g = new Graph ("Figure 3", "Damage Dealt against a Bugbear by a typical level 1 fighter (5e) (miss removed)", false);
             g.AddRolls (a, "");
             g.export ("damage2.svg");
 

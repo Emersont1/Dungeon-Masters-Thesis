@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OxyPlot;
+using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 
@@ -12,7 +13,9 @@ namespace Dice {
 
     public class Graph {
 
-        PlotModel Model;
+        private PlotModel Model;
+        private int palettestatus;
+        List<OxyColor> Pallette = new List<OxyColor>{Colours.Black,Colours.Red,Colours.Green, Colours.Blue, Colours.Cyan, Colours.Magenta, Colours.Yellow, Colours.Gray };
 
         public Graph (string title, string subtitle, bool use_XKCD = true) {
 
@@ -24,30 +27,71 @@ namespace Dice {
             Subtitle = subtitle,
 
             };
+            Model.Axes.Add (new LinearAxis { Position = AxisPosition.Bottom });
+            Model.Axes.Add (new LinearAxis { Position = AxisPosition.Left });
             if (use_XKCD) {
                 Model.RenderingDecorator = rc => new XkcdRenderingDecorator (rc);
             }
+            palettestatus = 0;
         }
 
-        public void AddRolls (DiceRoll roll, string title /*, OxyColor c*/ ) {
-            LineSeries l = new LineSeries ();
+        public void AddRolls (DiceRoll roll, string title, OxyColor? c = null, bool show_expected = false, bool stem = true, MarkerType marker_type = MarkerType.Cross) {
+            OxyColor colour;
+            if(c==null){
+                colour = NextColour();
+            } else {
+                colour = c.Value;
+            }
+
+            var points = new List<DataPoint> ();
             for (int i = roll.Min (); i <= roll.Max (); i++) {
                 if (roll.rolls.ContainsKey (i)) {
-                    l.Points.Add (new DataPoint (i, (double) roll.rolls[i]));
-                } else {
-                    l.Points.Add (new DataPoint (i, 0));
+                    points.Add (new DataPoint (i, (double) roll.rolls[i]));
+                } else if (!stem) {
+                    points.Add (new DataPoint (i, 0));
                 }
             }
-            foreach (var p in roll.rolls) {
 
+            if (show_expected) {
+                LineAnnotation Line = new LineAnnotation () {
+                    StrokeThickness = 2,
+                    Color = colour,
+                    Type = LineAnnotationType.Vertical,
+                    Text = "Expected",
+                    TextColor = colour,
+                    X = (double) roll.Expected (),
+                    //Y = 0.0f
+                };
+                Model.Annotations.Add (Line);
             }
-            // l.Smooth = true;
-            l.MarkerType = MarkerType.Circle;
-            l.MarkerSize = 7;
-            l.StrokeThickness = 2;
-            //l.Color =c;
-            l.Title = title;
-            Model.Series.Add (l);
+
+            if (stem) {
+                var series = new StemSeries {
+                    MarkerStroke = colour,
+                    MarkerSize = 3,
+                    MarkerFill = colour,
+                    MarkerType = marker_type,
+                    StrokeThickness = 0,
+                    //Smooth = true,
+                    Color = colour,
+                    Title = title
+                };
+                series.MarkerStroke = series.Color;
+                series.Points.AddRange (points);
+                Model.Series.Add (series);
+            } else {
+                var series = new LineSeries {
+                    MarkerType = marker_type,
+                    MarkerSize = 7,
+                    StrokeThickness = 0,
+                    //Smooth = true,
+                    Color = colour,
+                    Title = title
+                };
+                series.Points.AddRange (points);
+                Model.Series.Add (series);
+            }
+
         }
 
         public void export (string path, int w = 1280, int h = 720) {
@@ -57,6 +101,11 @@ namespace Dice {
                 exporter.Export (Model, stream);
 
             }
+        }
+
+        private OxyColor NextColour(){
+            if(palettestatus == Pallette.Count)palettestatus=0;
+            return Pallette[palettestatus++];
         }
 
     }
